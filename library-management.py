@@ -137,7 +137,7 @@ class Library():
         return [item for item in (self.books + self.comics + self.dvds) 
                if (search_term.lower() in item.title.lower() or
                    search_term.lower() in item.creator.lower() or
-                   search_term.lower == item.item_id.lower())]
+                   search_term.lower() == item.item_id.lower())]
             
     def find_user(self, search_term):
         return [user for user in (self.members + self.guests)
@@ -146,17 +146,22 @@ class Library():
             
     def display_items(self):
         print(f"Items in library: {self.name}")
+        print("a)BOOKS:")
         for item in self.books:
             print(f"- {item}")
+        print("b)COMICS:")
         for item in self.comics:
             print(f"- {item}")
+        print("c)DVDS:")
         for item in self.dvds:
             print(f"- {item}")
 
     def display_users(self):
         print(f"Members in library: {self.name}")
+        print("a)MEMBERS:")
         for user in self.members:
             print(f"- {user}")
+        print("b)GUESTS:")
         for user in self.guests:
             print(f"- {user}")
 
@@ -164,10 +169,10 @@ class Library():
     # checkout and return ___________________________________________________________________
     def checkout_item(self, user_id, item_id):
         if not (user := next((m for m in self.users if m.user_id == user_id), None)):
-            print("ERROR: User with ID {user_id} not found")
+            print(f"ERROR: User with ID {user_id} not found")
             return False
         if not (item := next((i for i in self.items if i.item_id == item_id), None)):
-            print("ERROR: Item with Id {item_id} not found")
+            print(f"ERROR: Item with Id {item_id} not found")
             return False
         
         if item.checked_out:
@@ -186,14 +191,14 @@ class Library():
         
     def return_item(self, user_id, item_id):
         if not (user := next((m for m in self.users if m.user_id == user_id), None)):
-            print("ERROR: User with ID {user_id} not found")
+            print(f"ERROR: User with ID {user_id} not found")
             return False
         if not (item := next((i for i in user.items_borrowed if i.item_id == item_id), None)):
-            print("ERROR: Item with Id {item_id} not found")
+            print(f"ERROR: Item with Id {item_id} not found")
             return False
         
-        if item.checked_out:
-            print(f"{item.title} already checked out by {item.borrower}")
+        if not item.checked_out:
+            print(f"{item.title} already returned.")
             return False
         if len(user.items_borrowed) >= user.max_items:
             print(f"Error: {user.name} has reached the maximum limit of {user.max_items} items.")
@@ -206,7 +211,20 @@ class Library():
             print(f"Error: Failed to return '{item.title}'.")
             return False
 
+#input validation ____________________________________________________________________________________________________________
+def not_empty(prompt, err_msg="Input cannot be empty"):
+    while True:
+        value = input(prompt)
+        if value:
+            return value
+        print(err_msg)
 
+def unique_id(existing_ids):
+    while True:
+        value = uuid.uuid4().hex[:3]
+        if value and value not in existing_ids:
+            return value
+        
 # display ____________________________________________________________________________________________________________________
 def main_menu(library):
     while True:
@@ -228,39 +246,39 @@ def main_menu(library):
             print("1. Book")
             print("2. Comic")
             print("3. DVD")
-            item_type = input("Enter choice (1-3): ")
+            while True:
+                item_type = input("Enter choice (1-3): ")
+                if item_type in ["1", "2", "3"]:
+                    break
+                print("invalid input")
 
-            title = input("Enter item title: ")
+            existing_ids = [item.item_id for item in library.items]
+            item_id = unique_id(existing_ids)
+            title = not_empty("Enter title name: ", "Title cannot be empty")
             if item_type == "1":
-                creator = input("Enter author name: ")
+                author = not_empty("Enter author name: ", "Author name cannot be empty")
+                library.add_book(title, author, item_id)
+                print(f"Success: Book '{title}' by {author} added with ID {item_id}!")
             elif item_type == "2":
-                creator = input("Enter artist name: ")
+                artist = not_empty("Enter artist name: ", "Artist name cannot be empty")
+                library.add_comic(title, artist, item_id)
+                print(f"Success: Comic '{title}' by {artist} added with ID {item_id}!")
             elif item_type == "3":
-                creator = input("Enter director name: ")
-            item_id = input("Enter item ID: ")
-
-            
-            if item_type == "1":
-                library.add_book(title, creator, item_id)
-                print("Book added successfully!")
-            elif item_type == "2":
-                library.add_comic(title, creator, item_id)
-                print("Comic added successfully!")
-            elif item_type == "3":
-                library.add_dvd(title, creator, item_id)
-                print("DVD added successfully!")
-            else:
-                print("Invalid item type!")
+                director = not_empty("Enter director name: ", "Director name cannot be empty")
+                library.add_dvd(title, director, item_id)
+                print(f"Success: DVD '{title}' directed by {director} added with ID {item_id}!")
+                
         
         elif choice == "2":
-            name = input("Enter member name: ")
-            user_id = input("Enter user ID: ")
+            name = not_empty("Enter member name: ", "Member name cannot be empty")
+            user_id = unique_id(existing_ids)
             library.add_member(name, user_id)
-            print("Member added successfully!")
+            print(f"Member added successfully!\nYour ID is: {user_id}")
         
         elif choice == "3":
             new_guest = library.add_guest()
             print(f"You have entered as a guest added successfully!\nYour guest ID is : {new_guest.user_id}")
+            print(f"Guest privileges: Maximum {new_guest.max_items} item(s) for {new_guest.loan_days} days.")
 
         elif choice == "4":
             user_id = input("Enter user ID: ")
@@ -304,11 +322,11 @@ if __name__ == "__main__":
     Lib = Library("nerds")
 
 #adding books and members ________________________________________________________________________________________________________
-    Lib.add_book("The Great Gatsby", "F. Scott Fitzgerald", "BK001")
-    Lib.add_book("To Kill a Mockingbird", "Harper Lee", "BK002")
+    Lib.add_book("The Great Gatsby", "F. Scott Fitzgerald", "001")
+    Lib.add_book("To Kill a Mockingbird", "Harper Lee", "002")
 
-    Lib.add_member("Harrum Fatima", "MEM001")
-    Lib.add_member("Siachin", "MEM002")
+    Lib.add_member("Harrum Fatima", "003")
+    Lib.add_member("Siachin", "004")
     # ____________________________________________________________________________________________________________________________
 
     main_menu(Lib)
