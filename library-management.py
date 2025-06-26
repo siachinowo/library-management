@@ -1,40 +1,24 @@
 #library mangement system
 from datetime import datetime, timedelta
-from abc import ABC, abstractmethod
+from abc import ABC
+import uuid
 
+# Items ______________________________________________________________________________________________________________________________
 class Item(ABC):
-    @abstractmethod
-    def checkout_item(self):
-        pass
-
-    @abstractmethod
-    def return_item(self):
-        pass
-
-class User(ABC):
-    @abstractmethod
-    def checkout_item(self):
-        pass
-
-    @abstractmethod
-    def return_item(self):
-        pass
-
-class Book(Item):
-    def __init__(self, title, author, item_id):
-        self.author = author
+    def __init__(self, title, creator, item_id):
         self.title = title
+        self.creator = creator
         self.item_id = item_id
         self.checked_out = False
         self.due_date = None
         self.borrower = None
 
-    def checkout_item(self, member_id, days=14):
+    def checkout_item(self, user_id, days=14):
         if self.checked_out:
             raise ValueError("Item is already checked out")
         
         self.checked_out = True
-        self.borrower = member_id
+        self.borrower = user_id
         self.due_date = datetime.now() + timedelta(days=days)
         return True
 
@@ -45,17 +29,38 @@ class Book(Item):
 
     def __str__(self):
         status = "Not Available" if self.checked_out else "Available"
-        return f"Item: {self.title} by {self.author} (ID: {self.item_id}) - {status}"
+        return (f"{self.__class__.__name__}: {self.title} "
+                f",{self.creator_role}: {self.creator}"
+                f"(ID:{self.item_id} - {status}")
 
-class Member(User):
-    def __init__(self, name, member_id):
+class Book(Item):
+    @property
+    def creator_role(self):
+        return "Author"
+    
+class ComicBook(Item):
+    @property
+    def creator_role(self):
+        return "Artist"
+   
+class DVD(Item):
+    @property
+    def creator_role(self):
+        return "Director"
+
+# users ___________________________________________________________________________________________________________________________
+class User(ABC):
+    def __init__(self, name, user_id):
         self.name = name 
-        self.member_id = member_id
+        self.user_id = user_id
         self.items_borrowed = []
+        self.access_level = "not restricted"
+        self.max_items = 5  
+        self.loan_days = 14
 
     def checkout_item(self, item):
-        if len(self.items_borrowed) < 5:
-            if item.checkout_item(self.member_id): 
+        if len(self.items_borrowed) < self.max_items:
+            if item.checkout_item(self.user_id): 
                 self.items_borrowed.append(item)
                 return True
         return False
@@ -66,56 +71,90 @@ class Member(User):
             self.items_borrowed.remove(item)
             return True
         return False
-
+    
     def __str__(self):
-        return f"Member: {self.name} (ID: {self.member_id}) - Items borrowed: {len(self.items_borrowed)}"
+        return f"{self.__class__.__name__} Account: {self.name} (ID: {self.user_id}) - Items borrowed: {len(self.items_borrowed)}"
 
+class Member(User):
+    pass
+       
+class Guest(User):
+    def __init__(self):
+        super().__init__(name="Guest", user_id=f"GUEST_{uuid.uuid4().hex[:3]}")
+        self.access_level = "restricted"
+        self.max_items = 1  
+        self.loan_days = 7
+
+
+# Library _____________________________________________________________________________________________________________________
 class Library():
     def __init__(self, name):
         self.name = name
-        self.items = []
-        self.members = []
 
-    def add_item(self, title, author, item_id):
+        self.books = []
+        self.comics = []
+        self.dvds = []
+
+        self.members = []
+        self.guests = []
+
+    # add item ____________________________________________
+    def add_book(self, title, author, item_id):
         new_item = Book(title, author, item_id)
-        self.items.append(new_item)
+        self.books.append(new_item)
+        return new_item
+    
+    def add_comic(self, title, artist, item_id):
+        new_item = ComicBook(title, artist, item_id)
+        self.comics.append(new_item)
+        return new_item
+    
+    def add_dvd(self, title, director, item_id):
+        new_item = DVD(title, director, item_id)
+        self.dvds.append(new_item)
         return new_item
 
-    def add_member(self, name, member_id):
-        new_member = Member(name, member_id)
-        self.members.append(new_member)
-        return new_member
+    # add user _____________________________________________
+    def add_member(self, name, user_id):
+        new_user = Member(name, user_id)
+        self.members.append(new_user)
+        return new_user
+    
+    def add_guest(self, name, user_id):
+        new_user = Guest(name, user_id)
+        self.guests.append(new_user)
+        return new_user
     
     def find_item(self, search_term):
-        return [item for item in self.items 
+        return [item for item in (self.books + self.comics + self.dvds) 
                if (search_term.lower() in item.title.lower() or
                    search_term.lower() in item.author.lower() or
                    search_term == item.item_id)]
             
-    def find_member(self, search_term):
-        return [member for member in self.members 
-               if (search_term.lower() in member.name.lower() or
-                   search_term == member.member_id)]
+    def find_user(self, search_term):
+        return [user for user in (self.members + self.guests)
+            if (search_term.lower() in user.name.lower() or
+                search_term == user.user_id)]
             
     def display_items(self):
         print(f"Items in library: {self.name}")
         for item in self.items:
             print(f"- {item}")
 
-    def display_members(self):
+    def display_user(self):
         print(f"Members in library: {self.name}")
-        for member in self.members:
-            print(f"- {member}")
+        for user in self.members:
+            print(f"- {user}")
 
-    def checkout_item(self, member_id, item_id):
-        if not (member := next((m for m in self.members if m.member_id == member_id), None)):
+    def checkout_item(self, user_id, item_id):
+        if not (member := next((m for m in self.members if m.user_id == user_id), None)):
             return False
         if not (item := next((i for i in self.items if i.item_id == item_id), None)):
             return False
         return member.checkout_item(item)
         
-    def return_item(self, member_id, item_id):
-        if not (member := next((m for m in self.members if m.member_id == member_id), None)):
+    def return_item(self, user_id, item_id):
+        if not (member := next((m for m in self.members if m.user_id == user_id), None)):
             return False
         if not (item := next((i for i in member.items_borrowed if i.item_id == item_id), None)):
             return False
@@ -123,6 +162,7 @@ class Library():
         member.items_borrowed.remove(item)
         return True
 
+# display ____________________________________________________________________________________________________________________
 def main_menu(library):
     while True:
         print("\nLibrary Management System")
@@ -146,22 +186,22 @@ def main_menu(library):
         
         elif choice == "2":
             name = input("Enter member name: ")
-            member_id = input("Enter member ID: ")
-            library.add_member(name, member_id)
+            user_id = input("Enter user ID: ")
+            library.add_member(name, user_id)
             print("Member added successfully!")
         
         elif choice == "3":
-            member_id = input("Enter member ID: ")
+            user_id = input("Enter user ID: ")
             item_id = input("Enter item ID: ")
-            if library.checkout_item(member_id, item_id):
+            if library.checkout_item(user_id, item_id):
                 print("Item checked out successfully!")
             else:
                 print("Could not check out item. Check if member or item exists, or if item is already checked out.")
         
         elif choice == "4":
-            member_id = input("Enter member ID: ")
+            user_id = input("Enter user ID: ")
             item_id = input("Enter item ID: ")
-            if library.return_item(member_id, item_id):
+            if library.return_item(user_id, item_id):
                 print("Item returned successfully!")
             else:
                 print("Could not return item. Check if member or item exists, or if member didn't borrow this item.")
