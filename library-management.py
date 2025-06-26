@@ -198,10 +198,7 @@ class Library():
             return False
         
         if not item.checked_out:
-            print(f"{item.title} already returned.")
-            return False
-        if len(user.items_borrowed) >= user.max_items:
-            print(f"Error: {user.name} has reached the maximum limit of {user.max_items} items.")
+            print(f"{item.title} is not borrowed by current user.")
             return False
         
         if user.return_item(item):
@@ -322,11 +319,30 @@ if __name__ == "__main__":
     Lib = Library("nerds")
 
 #adding books and members ________________________________________________________________________________________________________
+    # Books
     Lib.add_book("The Great Gatsby", "F. Scott Fitzgerald", "001")
     Lib.add_book("To Kill a Mockingbird", "Harper Lee", "002")
+    Lib.add_book("Dune", "Frank Herbert", "003")
+    Lib.add_book("Everything Sad Is Untrue", "Daniel Nayeri", "004")
+    Lib.add_book("The Hobbit", "J.R.R. Tolkien", "005")
+    Lib.add_book("The Martian", "Andy Weir", "006")
 
-    Lib.add_member("Harrum Fatima", "003")
-    Lib.add_member("Siachin", "004")
+    # Comics
+    Lib.add_comic("Omniscient Reader", "Sing N Song", "007")
+    Lib.add_comic("My Broken Mariko", "Waka Hirako", "008")
+    Lib.add_comic("Noblesse", "Son Jeho", "009")
+    Lib.add_comic("Solo Leveling", "Chu-Gong", "010")
+    Lib.add_comic("Death Note", "Tsugumi Ohba", "011")
+
+    # DVDs
+    Lib.add_dvd("The Promised Neverland", "Mamoru Kanbe", "012")
+    Lib.add_dvd("91 Days", "Hiro Kaburagi", "013")
+    Lib.add_dvd("Parasite", "Bong Joon-ho", "014")
+    Lib.add_dvd("Oldboy", "Park Chan-wook", "015")
+
+    # members
+    Lib.add_member("Nanami Kento", "218")
+    Lib.add_member("Siachin", "119")
     # ____________________________________________________________________________________________________________________________
 
     main_menu(Lib)
