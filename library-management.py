@@ -164,19 +164,48 @@ class Library():
     # checkout and return ___________________________________________________________________
     def checkout_item(self, user_id, item_id):
         if not (user := next((m for m in self.users if m.user_id == user_id), None)):
+            print("ERROR: User with ID {user_id} not found")
             return False
         if not (item := next((i for i in self.items if i.item_id == item_id), None)):
+            print("ERROR: Item with Id {item_id} not found")
             return False
-        return user.checkout_item(item)
+        
+        if item.checked_out:
+            print(f"{item.title} already checked out by {item.borrower}")
+            return False
+        if len(user.items_borrowed) >= user.max_items:
+            print(f"Error: {user.name} has reached the maximum limit of {user.max_items} items.")
+            return False
+
+        if user.checkout_item(item):
+            print(f"Success: '{item.title}' checked out to {user.name}. Due date: {item.due_date.strftime('%Y-%m-%d')}")
+            return True
+        else: 
+            print("Error during checkout")
+            return False
         
     def return_item(self, user_id, item_id):
         if not (user := next((m for m in self.users if m.user_id == user_id), None)):
+            print("ERROR: User with ID {user_id} not found")
             return False
         if not (item := next((i for i in user.items_borrowed if i.item_id == item_id), None)):
+            print("ERROR: Item with Id {item_id} not found")
             return False
         
-        user.return_item(item)
-        return True
+        if item.checked_out:
+            print(f"{item.title} already checked out by {item.borrower}")
+            return False
+        if len(user.items_borrowed) >= user.max_items:
+            print(f"Error: {user.name} has reached the maximum limit of {user.max_items} items.")
+            return False
+        
+        if user.return_item(item):
+            print(f"Success: '{item.title}' returned by {user.name}.")
+            return True
+        else:
+            print(f"Error: Failed to return '{item.title}'.")
+            return False
+
 
 # display ____________________________________________________________________________________________________________________
 def main_menu(library):
