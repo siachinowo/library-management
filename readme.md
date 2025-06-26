@@ -1,33 +1,33 @@
 # A small project to learn OOP implementation
 
-_____________________________________________________________________
-current data in library:
+
+### current data in library:<br/>
 BOOKS:
-The Great Gatsby by F. Scott Fitzgerald (ID: 001)
-To Kill a Mockingbird by Harper Lee (ID: 002)
-Dune by Frank Herbert (ID: 003)
-Everything Sad Is Untrue by Daniel Nayeri (ID: 004)
-The Hobbit by J.R.R. Tolkien (ID: 005)
-The Martian by Andy Weir (ID: 006)
+- The Great Gatsby by F. Scott Fitzgerald (ID: 001)
+- To Kill a Mockingbird by Harper Lee (ID: 002)
+- Dune by Frank Herbert (ID: 003)
+- Everything Sad Is Untrue by Daniel Nayeri (ID: 004)
+- The Hobbit by J.R.R. Tolkien (ID: 005)
+- The Martian by Andy Weir (ID: 006)
 
 COMICS:
-Omniscient Reader by Sing N Song (ID: 007)
-My Broken Mariko by Waka Hirako (ID: 008)
-Noblesse by Son Jeho (ID: 009)
-Solo Leveling by Chu-Gong (ID: 010)
-Death Note by Tsugumi Ohba (ID: 011)
+- Omniscient Reader by Sing N Song (ID: 007)
+- My Broken Mariko by Waka Hirako (ID: 008)
+- Noblesse by Son Jeho (ID: 009)
+- Solo Leveling by Chu-Gong (ID: 010)
+- Death Note by Tsugumi Ohba (ID: 011)
 
 DVDS:
-The Promised Neverland directed by Mamoru Kanbe (ID: 012)
-91 Days directed by Hiro Kaburagi (ID: 013)
-Parasite directed by Bong Joon-ho (ID: 014)
-Oldboy directed by Park Chan-wook (ID: 015)
+- The Promised Neverland directed by Mamoru Kanbe (ID: 012)
+- 91 Days directed by Hiro Kaburagi (ID: 013)
+- Parasite directed by Bong Joon-ho (ID: 014)
+- Oldboy directed by Park Chan-wook (ID: 015)
 
 MEMBERS:
-Nanami kento (ID: 218)
-Siachin (ID: 119)
+- Nanami kento (ID: 218)
+- Siachin (ID: 119)
 
-GUESTS:
+GUESTS:<br/>
 [Auto-generated as "GUEST_XXX" when created]
 
 
